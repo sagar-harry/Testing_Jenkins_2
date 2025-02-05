@@ -30,7 +30,7 @@ pipeline {
                     sh '''
                     cd repo
                     git config --global user.email "10vidyasagarkonni@gmail.com"
-                    git config --global user.name "Jenkins"
+                    git config --global user.name "sagar-harry"
                     git add .
                     git commit -m "register work"
                     git push origin ${BRANCH}
