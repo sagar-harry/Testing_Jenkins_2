@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         GIT_CREDENTIALS_ID = 'github-credentials'  // The credential ID from Jenkins
-        REPO_URL = 'https://github.com/sagar-harry/Testing_Jenkins_3'
+        REPO_URL = 'https://github.com/sagar-harry/Testing_Jenkins_2'
         BRANCH = 'main'  // Change if pushing to a different branch
         DIR_TO_PUSH = 'testing1'  // Change to the directory you want to push
     }
