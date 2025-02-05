@@ -25,7 +25,7 @@ pipeline {
         stage('Commit and Push') {
             steps {
                 withCredentials([
-                    gitUsernamePassword(credentialsId: 'GIT_CREDENTIALS_ID', gitToolName: 'Default')
+                    gitUsernamePassword(credentialsId: 'github-credentials', gitToolName: 'Default')
                 ]) {
                     sh '''
                     cd repo
