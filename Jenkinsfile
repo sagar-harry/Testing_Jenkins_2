@@ -10,7 +10,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 script {
-                    sh 'rm -rf repo && git clone https://github.com/sagar-harry/Testing_Jenkins_2 repo'
+                    sh 'rm -rf repo && git clone https://github.com/sagar-harry/Testing_Jenkins_3 repo'
                 }
             }
         }
