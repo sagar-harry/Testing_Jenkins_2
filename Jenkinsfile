@@ -17,7 +17,7 @@ pipeline {
         stage('Copy Directory') {
             steps {
                 script {
-                    sh 'ls'
+                    sh 'pwd'
                     sh 'cp -r ${DIR_TO_PUSH} repo/'
                 }
             }
