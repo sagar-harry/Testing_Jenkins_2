@@ -4,7 +4,7 @@ pipeline {
         GIT_CREDENTIALS_ID = 'github-credentials'  // The credential ID from Jenkins
         REPO_URL = 'https://github.com/sagar-harry/Testing_Jenkins_2'
         BRANCH = 'main'  // Change if pushing to a different branch
-        DIR_TO_PUSH = 'testing1'  // Change to the directory you want to push
+        DIR_TO_PUSH = 'C:/Users/RH0957/Desktop/rough/jenkins/workspace/testing1'  // Change to the directory you want to push
     }
     stages {
         stage('Clone Repository') {
