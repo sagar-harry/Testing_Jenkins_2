@@ -24,16 +24,17 @@ pipeline {
         }
         stage('Commit and Push') {
             steps {
-                script {
-                    dir('repo') {
-                        sh '''
-                        git config --global user.email "10vidyasagarkonni@gmail.com"
-                        git config --global user.name "sagar-harry"
-                        git add .
-                        git commit -m "Added ${DIR_TO_PUSH} from Jenkins"
-                        git push https://${GIT_CREDENTIALS_ID}@github.com/sagar-harry/Testing_Jenkins_3.git ${BRANCH}
-                        '''
-                    }
+                withCredentials([
+                    gitUsernamePassword(credentialsId: 'mygitid', gitToolName: 'Default')
+                ]) {
+                    sh '''
+                    cd repo
+                    git config --global user.email "your-email@example.com"
+                    git config --global user.name "Jenkins"
+                    git add .
+                    git commit -m "register work"
+                    git push origin ${BRANCH}
+                    '''
                 }
             }
         }
