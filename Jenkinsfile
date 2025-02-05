@@ -1,24 +1,38 @@
 pipeline {
     agent any
+    environment {
+        GIT_CREDENTIALS_ID = 'github-credentials'  // The credential ID from Jenkins
+        REPO_URL = 'https://github.com/sagar-harry/Testing_Jenkins_3'
+        BRANCH = 'main'  // Change if pushing to a different branch
+        DIR_TO_PUSH = 'testing1'  // Change to the directory you want to push
+    }
     stages {
-        stage(''){
-            steps {
-                deleteDir()
-            }
-        }
-        stage('Stage-1: Clone repository') {
-            steps {
-                bat 'git clone https://github.com/sagar-harry/Testing_Jenkins'
-            }
-        }
-        
-        stage("Stage-3: Activate environment") {
+        stage('Clone Repository') {
             steps {
                 script {
-                    bat """
-                        echo 'hello world'
-                    """
-                    echo "Completed Stage-3"
+                    sh 'rm -rf repo && git clone ${REPO_URL} repo'
+                }
+            }
+        }
+        stage('Copy Directory') {
+            steps {
+                script {
+                    sh 'cp -r ${DIR_TO_PUSH} repo/'
+                }
+            }
+        }
+        stage('Commit and Push') {
+            steps {
+                script {
+                    dir('repo') {
+                        sh '''
+                        git config --global user.email "10vidyasagarkonni@gmail.com"
+                        git config --global user.name "sagar-harry"
+                        git add .
+                        git commit -m "Added ${DIR_TO_PUSH} from Jenkins"
+                        git push https://${GIT_CREDENTIALS_ID}@github.com/sagar-harry/Testing_Jenkins_3.git ${BRANCH}
+                        '''
+                    }
                 }
             }
         }
