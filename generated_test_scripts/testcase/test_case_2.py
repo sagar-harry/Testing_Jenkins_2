@@ -4,81 +4,81 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
-import sys
+from time import sleep
 
-class LoginPage:
-    def __init__(self, driver):
-        self.driver = driver
+def run_ui_test():
+    # Configure Selenium WebDriver options
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-notifications")
+    options.add_argument("--incognito")
+    options.add_argument("--disable-popup-blocking")
 
-    def login(self, username, password):
-        username_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="user-name"]'))
-        )
-        password_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
-        login_button = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
-
-        username_field.send_keys(username)
-        time.sleep(3)
-        password_field.send_keys(password)
-        time.sleep(3)
-        login_button.click()
-
-def test_add_items_to_cart():
+    driver = webdriver.Chrome(options=options)
+    
     try:
-        # Set up Chrome options
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-notifications")
-        chrome_options.add_argument("--incognito")
-        chrome_options.add_argument("--window-size=1920x1080")
-
-        # Initialize the WebDriver
-        driver = webdriver.Chrome(options=chrome_options)
-
-        # Open URL
+        # Open the website
         driver.get("https://saucedemo.com/")
-        time.sleep(5)
-
-        # Maximize the window
+        # Maximize window
         driver.maximize_window()
+        # Wait for the page to load (5 seconds)
+        sleep(5)
 
-        # Perform login
-        login_page = LoginPage(driver)
-        login_page.login("standard_user", "secret_sauce")
+        # Wait and perform login
+        login(driver)
 
-        # Wait and add 'Bike Light' to the cart
-        bike_light = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
-        )
-        time.sleep(3)
-        bike_light.click()
+        # Wait before action
+        sleep(3)
 
-        # Wait and add 'Fleece Jacket' to the cart
-        fleece_jacket = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
-        )
-        time.sleep(3)
-        fleece_jacket.click()
+        # Add 'Bike Light' to cart
+        add_item_to_cart(driver, '//*[@id="add-to-cart-sauce-labs-bike-light"]')
 
-        # Wait for the cart badge to display and check its value
-        cart_count = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-        )
-        time.sleep(3)
-        assert cart_count.text == '2', "Cart count is not correct."
+        # Wait before action
+        sleep(3)
 
-        # Pass the test
-        print("Test Passed")
-        sys.exit(0)
+        # Add 'Fleece Jacket' to cart
+        add_item_to_cart(driver, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
 
+        # Wait before action
+        sleep(3)
+
+        # Verify cart badge displays '2'
+        verify_cart_count(driver, '//*[@id="shopping_cart_container"]/a/span', '2')
+
+        # Exit with success
+        exit(0)
+        
     except Exception as e:
-        print(f"Test Failed: {e}")
-        sys.exit(1)
-
+        print(f"Test failed: {e}")
+        # Exit with error
+        exit(1)
     finally:
-        # Clean up and close the driver
         driver.quit()
 
-# Run the test
-test_add_items_to_cart()
+def login(driver):
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.XPATH, '//*[@id="user-name"]'))
+    ).send_keys('your_username')
+    
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.XPATH, '//*[@id="password"]'))
+    ).send_keys('your_password')
+    
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//*[@id="login-button"]'))
+    ).click()
+
+def add_item_to_cart(driver, item_xpath):
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, item_xpath))
+    ).click()
+
+def verify_cart_count(driver, cart_counter_xpath, expected_count):
+    cart_count_element = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.XPATH, cart_counter_xpath))
+    )
+    actual_count = cart_count_element.text
+    assert actual_count == expected_count, f"Cart count mismatch: expected {expected_count}, got {actual_count}"
+
+if __name__ == "__main__":
+    run_ui_test()
