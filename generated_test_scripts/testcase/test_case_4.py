@@ -14,79 +14,77 @@ class LoginPage:
         self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
         self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-def test_checkout_process():
+def test_ui_scenario():
+    driver = webdriver.Chrome()
+    driver.get("https://www.yourwebsite.com")
+    time.sleep(5)  # Wait for the page to load
+    driver.maximize_window()
+
     try:
-        # Initialize WebDriver
-        driver = webdriver.Chrome()
-        driver.get("https://www.saucedemo.com/")
+        login_page = LoginPage(driver)
         
         # Login
-        login_page = LoginPage(driver)
-        login_page.login("standard_user", "secret_sauce")
+        login_page.login("testuser", "testpassword")
         time.sleep(3)
-        
-        # Add items to cart
+
+        # Add products to cart
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
+            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
         ).click()
         time.sleep(3)
         
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
+            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
+        ).click()
+        time.sleep(3)
+
+        # Go to cart
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a'))
         ).click()
         time.sleep(3)
 
         # Proceed to checkout
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a'))
-        ).click()
-        time.sleep(3)
-        
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="checkout"]'))
+            EC.presence_of_element_located((By.XPATH, '//*[@id="checkout"]'))
         ).click()
         time.sleep(3)
 
-        # Enter checkout details
+        # Enter checkout information
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="first-name"]'))
+            EC.presence_of_element_located((By.XPATH, '//*[@id="first-name"]'))
         ).send_keys("somename")
         time.sleep(3)
+
+        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys("lastname")
+        time.sleep(3)
         
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="last-name"]'))
-        ).send_keys("lastname")
+        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys("123456")
         time.sleep(3)
 
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="postal-code"]'))
-        ).send_keys("123456")
+        # Continue to payment information
+        driver.find_element(By.XPATH, '//*[@id="continue"]').click()
         time.sleep(3)
 
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="continue"]'))
-        ).click()
-        time.sleep(3)
-
-        # Verify the Payment Information label is visible
+        # Verify that the payment information label is visible
         payment_info_visible = WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]'))
         )
-
         if payment_info_visible:
-            print("Test Passed: Payment information label is visible.")
-            driver.quit()
+            print("Test Case Passed")
             return 0
         else:
-            print("Test Failed: Payment information label is not visible.")
-            driver.quit()
+            print("Test Case Failed")
             return 1
 
     except Exception as e:
-        print(f"Test Failed with exception: {e}")
-        driver.quit()
+        print(f"An error occurred: {e}")
         return 1
 
-# Run the test case
-result = test_checkout_process()
-exit(result)
+    finally:
+        driver.quit()
+
+# Run the test
+if __name__ == "__main__":
+    result = test_ui_scenario()
+    exit(result)
