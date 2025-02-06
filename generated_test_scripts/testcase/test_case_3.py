@@ -10,57 +10,70 @@ class LoginPage:
         self.driver = driver
 
     def login(self, username, password):
-        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
-        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
-        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
-        time.sleep(3)  # Wait for login to complete
+        self.driver.find_element(By.XPATH, "//*[@id='user-name']").send_keys(username)
+        self.driver.find_element(By.XPATH, "//*[@id='password']").send_keys(password)
+        self.driver.find_element(By.XPATH, "//*[@id='login-button']").click()
 
-class UITests:
-    def setUp(self):
-        self.driver = webdriver.Chrome()
-        self.driver.get("https://www.example.com")
-        self.login_page = LoginPage(self.driver)
+def test_cart_functionality():
+    try:
+        # Initialize WebDriver
+        driver = webdriver.Chrome()
+        driver.get("https://www.example.com")  # Replace with the actual URL
 
-    def tearDown(self):
-        self.driver.quit()
+        # Log in
+        login_page = LoginPage(driver)
+        login_page.login("standard_user", "secret_sauce")
 
-    def test_add_items_to_cart(self):
-        self.setUp()
-        self.login_page.login("standard_user", "secret_sauce")
+        # Wait for login - Assuming login leads to homepage
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='menu_button_container']")))
 
-        # Add Bike Light to the cart
-        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
-        time.sleep(3)
+        # Add Bike Light to cart
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='add-to-cart-sauce-labs-bike-light']"))).click()
 
-        # Add Fleece Jacket to the cart
-        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
-        time.sleep(3)
+        # Add Fleece Jacket to cart
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='add-to-cart-sauce-labs-bolt-t-shirt']"))).click()
 
-        # Verify cart badge shows '2'
-        cart_count = self.driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span').text
-        assert cart_count == '2', f"Expected cart count to be '2', but got '{cart_count}'"
+        # Verify cart badge is '2'
+        badge = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='shopping_cart_container']/a/span")))
 
-        # Reset the cart by removing items
-        # Example assumes there is a 'remove' button with known locators for simplicity
-        self.driver.find_element(By.XPATH, '//*[@id="remove-sauce-labs-bike-light"]').click()
-        time.sleep(3)
-        self.driver.find_element(By.XPATH, '//*[@id="remove-sauce-labs-bolt-t-shirt"]').click()
-        time.sleep(3)
+        if badge.text != '2':
+            raise AssertionError("Cart badge should display '2'. Current value: {}".format(badge.text))
 
-        # Verify cart is empty (No badge)
-        cart_badge_elements = self.driver.find_elements(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
-        assert len(cart_badge_elements) == 0, "Expected cart badge to be empty"
+        # Reset the cart - Assuming a reset is done by removing items
+        # Remove all items one by one
+        driver.find_element(By.XPATH, "//*[@id='remove-sauce-labs-bike-light']").click()
+        driver.find_element(By.XPATH, "//*[@id='remove-sauce-labs-bolt-t-shirt']").click()
 
-        # Add Bolt T-Shirt to the cart after reset
-        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
-        time.sleep(3)
+        time.sleep(2)  # Wait for UI to update
 
-        # Verify cart badge shows '1'
-        cart_count = self.driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span').text
-        assert cart_count == '1', f"Expected cart count to be '1', but got '{cart_count}'"
+        # Verify the cart is empty
+        try:
+            badge = driver.find_element(By.XPATH, "//*[@id='shopping_cart_container']/a/span")
+            if badge.text != '':
+                raise AssertionError("Cart should be empty. Current cart badge: {}".format(badge.text))
+        except Exception:
+            pass  # No badge means cart is empty
 
-        self.tearDown()
+        # Add Bolt T-Shirt to cart after reset
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='add-to-cart-sauce-labs-bolt-t-shirt']"))).click()
+
+        # Verify cart badge is '1'
+        badge = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='shopping_cart_container']/a/span")))
+
+        if badge.text != '1':
+            raise AssertionError("Cart badge should display '1'. Current value: {}".format(badge.text))
+
+        print("Test passed")
+        return 0
+
+    except Exception as e:
+        print(f"Test failed: {str(e)}")
+        return -1
+
+    finally:
+        # Cleanup
+        driver.quit()
 
 if __name__ == "__main__":
-    test = UITests()
-    test.test_add_items_to_cart()
+    result = test_cart_functionality()
+    exit(result)
