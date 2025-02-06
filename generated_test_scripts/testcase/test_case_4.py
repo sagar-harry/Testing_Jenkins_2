@@ -1,49 +1,50 @@
 
+import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-import unittest
+import time
 
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
-        self.username_input = driver.find_element(By.XPATH, '//*[@id="user-name"]')
-        self.password_input = driver.find_element(By.XPATH, '//*[@id="password"]')
-        self.login_button = driver.find_element(By.XPATH, '//*[@id="login-button"]')
 
     def login(self, username, password):
-        self.username_input.send_keys(username)
-        self.password_input.send_keys(password)
-        self.login_button.click()
+        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
+        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
+        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-class CheckoutTest(unittest.TestCase):
+class UITest(unittest.TestCase):
     def setUp(self):
-        self.driver = webdriver.Chrome()  # Make sure to have the appropriate WebDriver installed
-        self.driver.get("URL_OF_THE_APPLICATION")  # Substitute with the actual URL of the application
+        self.driver = webdriver.Chrome()
+        self.driver.get("https://www.example.com")  # Replace with the actual URL
+        self.login_page = LoginPage(self.driver)
 
-    def test_checkout_process(self):
-        driver = self.driver
-        # Login
-        login_page = LoginPage(driver)
-        login_page.login('your_username', 'your_password')  # Use actual credentials
+    def test_checkout_payment_information(self):
+        self.login_page.login("standard_user", "secret_sauce")
         
-        # Add items to cart
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
         
-        # Proceed to checkout
-        driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
-        driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
         
-        # Enter checkout details
-        driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys('somename')
-        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys('lastname')
-        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys('123456')
-        driver.find_element(By.XPATH, '//*[@id="continue"]').click()
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
         
-        # Verify Payment Information is displayed
-        payment_info = driver.find_element(By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]')
-        self.assertTrue(payment_info.is_displayed(), "Payment Information label is not visible")
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
+        
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys("somename")
+        self.driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys("lastname")
+        self.driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys("123456")
+        
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="continue"]').click()
+        
+        time.sleep(3)
+        payment_info_visible = self.driver.find_element(By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]').is_displayed()
+        self.assertTrue(payment_info_visible, "Payment Information label is not visible")
 
     def tearDown(self):
         self.driver.quit()

@@ -1,42 +1,43 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import unittest
 import time
 
-# Assuming LoginPage class is defined elsewhere in the project
-from LoginPage import LoginPage
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
 
-class TestUICartFunctionality(unittest.TestCase):
-    def setUp(self):
+    def login(self, username, password):
+        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
+        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
+        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
+        time.sleep(3)
+
+class TestCartFunctionality:
+    def setup_method(self):
         self.driver = webdriver.Chrome()
-        self.driver.get("http://your-application-url.com")  # Add the URL of the web application
-        self.driver.maximize_window()
-        time.sleep(2)
+        self.driver.get("https://www.saucedemo.com/")
+        self.login_page = LoginPage(self.driver)
 
-    def test_add_items_to_cart_and_verify_count(self):
-        driver = self.driver
-
-        # Login using LoginPage class method
-        login_page = LoginPage(driver)
-        login_page.login()
-
-        # Add 'Bike Light' to cart
-        bike_light = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]')
-        bike_light.click()
-
-        # Add 'Fleece Jacket' to cart
-        fleece_jacket = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
-        fleece_jacket.click()
-
-        time.sleep(2)  # Wait to ensure items are added
-
-        # Verify cart badge displays '2'
-        cart_count = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
-        self.assertEqual(cart_count.text, '2', "Cart count is not correct. Expected: 2, Found: " + cart_count.text)
-
-    def tearDown(self):
+    def teardown_method(self):
         self.driver.quit()
 
+    def test_add_items_to_cart(self):
+        # Given the user is logged in
+        self.login_page.login("standard_user", "secret_sauce")
+        
+        # When they add 'Bike Light' and 'Fleece Jacket' to the cart
+        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
+        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
+        time.sleep(3)
+        
+        # Then the cart badge should display '2'
+        cart_count = self.driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span').text
+        assert cart_count == '2', f"Expected cart count to be '2', but got '{cart_count}'"
+
 if __name__ == "__main__":
-    unittest.main()
+    test = TestCartFunctionality()
+    test.setup_method()
+    test.test_add_items_to_cart()
+    test.teardown_method()

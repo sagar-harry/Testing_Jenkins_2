@@ -1,55 +1,73 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import unittest
+from selenium.webdriver.common.keys import Keys
 import time
 
-class TestPurchaseFlow(unittest.TestCase):
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.username_input = "//*[@id='user-name']"
+        self.password_input = "//*[@id='password']"
+        self.login_button = "//*[@id='login-button']"
 
-    def setUp(self):
-        self.driver = webdriver.Chrome()
-        self.driver.get("https://www.yourwebsite.com")  # Replace with the actual URL
+    def login(self, username, password):
+        self.driver.find_element(By.XPATH, self.username_input).send_keys(username)
+        self.driver.find_element(By.XPATH, self.password_input).send_keys(password)
+        self.driver.find_element(By.XPATH, self.login_button).click()
+        time.sleep(3)
 
-    def test_purchase_flow(self):
-        driver = self.driver
-        
-        # login
-        driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys('standard_user')  # Replace with valid username
-        driver.find_element(By.XPATH, '//*[@id="password"]').send_keys('secret_sauce')    # Replace with valid password
-        driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-        # add items to cart
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
-        
-        # go to cart
-        driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
-        
-        # proceed to checkout
-        driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
+def test_complete_purchase_flow():
+    driver = webdriver.Chrome()
+    driver.get("https://www.saucedemo.com/")  # Example URL, replace with the actual login URL
 
-        # enter checkout information
-        driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys('somename')
-        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys('lastname')
-        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys('123456')
-        driver.find_element(By.XPATH, '//*[@id="continue"]').click()
+    login_page = LoginPage(driver)
+    login_page.login("standard_user", "secret_sauce")  # Replace with valid credentials
 
-        # complete purchase
-        driver.find_element(By.XPATH, '//*[@id="finish"]').click()
-        
-        # Back to homepage
-        driver.find_element(By.XPATH, '//*[@id="back-to-products"]').click()
+    # Add Bike Light to the cart
+    driver.find_element(By.XPATH, "//*[@id='add-to-cart-sauce-labs-bike-light']").click()
+    time.sleep(3)
 
-        # logout
-        driver.find_element(By.XPATH, '//*[@id="react-burger-menu-btn"]').click()
-        time.sleep(2)  # Allow animation to finish
-        driver.find_element(By.XPATH, '//*[@id="logout_sidebar_link"]').click()
+    # Add Fleece Jacket to the cart
+    driver.find_element(By.XPATH, "//*[@id='add-to-cart-sauce-labs-bolt-t-shirt']").click()
+    time.sleep(3)
 
-        # Verify successful logout
-        self.assertTrue(driver.find_element(By.XPATH, '//*[@id="login-button"]').is_displayed())
+    # Click on the cart icon
+    driver.find_element(By.XPATH, "//*[@id='shopping_cart_container']/a").click()
+    time.sleep(3)
 
-    def tearDown(self):
-        self.driver.quit()
+    # Proceed to checkout
+    driver.find_element(By.XPATH, "//*[@id='checkout']").click()
+    time.sleep(3)
 
-if __name__ == '__main__':
-    unittest.main()
+    # Enter user details
+    driver.find_element(By.XPATH, "//*[@id='first-name']").send_keys("somename")
+    driver.find_element(By.XPATH, "//*[@id='last-name']").send_keys("lastname")
+    driver.find_element(By.XPATH, "//*[@id='postal-code']").send_keys("123456")
+    driver.find_element(By.XPATH, "//*[@id='continue']").click()
+    time.sleep(3)
+
+    # Complete the purchase
+    driver.find_element(By.XPATH, "//*[@id='finish']").click()
+    time.sleep(3)
+
+    # Return to the homepage
+    driver.find_element(By.XPATH, "//*[@id='back-to-products']").click()
+    time.sleep(3)
+
+    # Click on logout sidebar
+    driver.find_element(By.XPATH, "//*[@id='react-burger-menu-btn']").click()
+    time.sleep(3)
+
+    # Click on logout button
+    driver.find_element(By.XPATH, "//*[@id='logout_sidebar_link']").click()
+    time.sleep(3)
+
+    # Verify successful logout
+    assert "https://www.saucedemo.com/" in driver.current_url
+
+    driver.quit()
+
+if __name__ == "__main__":
+    test_complete_purchase_flow()
