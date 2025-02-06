@@ -1,42 +1,39 @@
 
+import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import unittest
 
-class TestAddToCart(unittest.TestCase):
-    
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
+
+    def login(self, username, password):
+        self.driver.find_element(By.ID, "user-name").send_keys(username)
+        self.driver.find_element(By.ID, "password").send_keys(password)
+        self.driver.find_element(By.ID, "login-button").click()
+
+class TestShoppingCart(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome()
-        self.driver.get('https://www.example.com')  # replace with actual URL
+        self.driver.get('https://www.saucedemo.com/')
+        self.login_page = LoginPage(self.driver)
 
+    def test_cart_count(self):
+        # Step 1: Log in using the Login method
+        self.login_page.login("standard_user", "secret_sauce")
+        
+        # Step 2: Add 'Bike Light' to the cart
+        self.driver.find_element(By.ID, "add-to-cart-sauce-labs-bike-light").click()
+        
+        # Step 3: Add 'Fleece Jacket' to the cart
+        self.driver.find_element(By.ID, "add-to-cart-sauce-labs-fleece-jacket").click()
+        
+        # Step 4: Validate if the cart badge displays '2'
+        cart_badge = self.driver.find_element(By.CLASS_NAME, "shopping_cart_badge")
+        self.assertEqual(cart_badge.text, "2", "Cart badge does not display the correct count.")
+    
     def tearDown(self):
         self.driver.quit()
 
-    def test_add_items_to_cart(self):
-        driver = self.driver
-        self.login()  # Use login method in LoginPage
-        
-        # Add 'Bike Light' to the cart
-        bike_light_button = driver.find_element(By.ID, 'add-to-cart-sauce-labs-bike-light')
-        bike_light_button.click()
-
-        # Add 'Fleece Jacket' to the cart
-        fleece_jacket_button = driver.find_element(By.ID, 'add-to-cart-sauce-labs-fleece-jacket')
-        fleece_jacket_button.click()
-        
-        # Check if cart badge displays '2'
-        cart_badge = driver.find_element(By.CLASS_NAME, 'shopping_cart_badge')
-        self.assertEqual(cart_badge.text, '2', "Cart badge does not display the correct count")
-    
-    def login(self):
-        driver = self.driver
-        username_input = driver.find_element(By.ID, 'user-name')
-        password_input = driver.find_element(By.ID, 'password')
-        login_button = driver.find_element(By.ID, 'login-button')
-        
-        username_input.send_keys('standard_user')  # replace with actual username
-        password_input.send_keys('secret_sauce')  # replace with actual password
-        login_button.click()
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
