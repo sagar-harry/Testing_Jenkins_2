@@ -1,7 +1,7 @@
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -10,61 +10,64 @@ import sys
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
-        self.username = '//*[@id="user-name"]'
-        self.password = '//*[@id="password"]'
-        self.login_button = '//*[@id="login-button"]'
 
     def login(self, username, password):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, self.username))).send_keys(username)
+        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
         time.sleep(3)
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, self.password))).send_keys(password)
+        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
         time.sleep(3)
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, self.login_button))).click()
+        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
         time.sleep(3)
 
-def main():
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-notifications')
-    chrome_options.add_argument('--disable-popup-blocking')
-    chrome_options.add_argument('--incognito')
-
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.maximize_window()
-    driver.get("https://saucedemo.com/")
+def test_ui():
+    options = Options()
+    options.headless = True
+    options.add_argument("--incognito")
+    options.add_experimental_option('prefs', {
+        "profile.default_content_setting_values.notifications": 2
+    })
     
-    time.sleep(5) # Wait after opening the page
-
-    login_page = LoginPage(driver)
-    login_page.login('standard_user', 'secret_sauce')
-
+    driver = webdriver.Chrome(options=options)
+    
     try:
-        # Add Bike Light to the cart
-        bike_light_xpath = '//*[@id="add-to-cart-sauce-labs-bike-light"]'
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, bike_light_xpath))).click()
+        driver.get("https://saucedemo.com/")
+        time.sleep(5)
+        driver.maximize_window()
+
+        login_page = LoginPage(driver)
+        login_page.login('standard_user', 'secret_sauce')
+
+        # Add 'Bike Light' to the cart
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
+        ).click()
         time.sleep(3)
         
-        # Add Fleece Jacket to the cart
-        fleece_jacket_xpath = '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, fleece_jacket_xpath))).click()
+        # Add 'Fleece Jacket' to the cart
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
+        ).click()
         time.sleep(3)
+
+        # Verify cart badge shows '2'
+        cart_count = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
+        ).text
+        assert cart_count == '2', "Cart badge count is incorrect"
         
-        # Check if the cart badge displays '2'
-        cart_count_xpath = '//*[@id="shopping_cart_container"]/a/span'
-        cart_count_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, cart_count_xpath)))
-        
-        if cart_count_element.text == '2':
-            print("Test Passed")
-            sys.exit(0)
-        else:
-            print("Test Failed")
-            sys.exit(1)
-            
-    except Exception as e:
-        print(f"Test Failed: {str(e)}")
+        print("Test Passed")
+        sys.exit(0)
+
+    except AssertionError as e:
+        print(f"Assertion Error: {e}")
         sys.exit(1)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        sys.exit(1)
+    
     finally:
         driver.quit()
 
 if __name__ == "__main__":
-    main()
+    test_ui()
