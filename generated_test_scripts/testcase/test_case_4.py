@@ -14,64 +14,79 @@ class LoginPage:
         self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
         self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-def test_ui_scenario():
+def test_checkout_process():
     try:
+        # Initialize WebDriver
         driver = webdriver.Chrome()
-        driver.get("http://yourappurl.com")  # Replace with the actual URL of the application
-
-        # Log in to the application
+        driver.get("https://www.saucedemo.com/")
+        
+        # Login
         login_page = LoginPage(driver)
-        login_page.login("yourusername", "yourpassword")  # Replace with actual credentials
-
-        # Add items to the cart
+        login_page.login("standard_user", "secret_sauce")
+        time.sleep(3)
+        
+        # Add items to cart
         WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
         ).click()
+        time.sleep(3)
+        
         WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
         ).click()
+        time.sleep(3)
 
         # Proceed to checkout
         WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="shopping_cart_container"]/a'))
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a'))
         ).click()
+        time.sleep(3)
+        
         WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="checkout"]'))
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="checkout"]'))
         ).click()
+        time.sleep(3)
 
         # Enter checkout details
         WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.XPATH, '//*[@id="first-name"]'))
         ).send_keys("somename")
-        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys("lastname")
-        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys("123456")
-
-        # Click continue
+        time.sleep(3)
+        
         WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="continue"]'))
-        ).click()
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="last-name"]'))
+        ).send_keys("lastname")
+        time.sleep(3)
 
-        # Verify that the payment information section is displayed
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="postal-code"]'))
+        ).send_keys("123456")
+        time.sleep(3)
+
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="continue"]'))
+        ).click()
+        time.sleep(3)
+
+        # Verify the Payment Information label is visible
         payment_info_visible = WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]'))
         )
-        
+
         if payment_info_visible:
-            print("Test Passed: Payment Information section is visible.")
+            print("Test Passed: Payment information label is visible.")
+            driver.quit()
             return 0
         else:
-            print("Test Failed: Payment Information section is not visible.")
-            return -1
-        
+            print("Test Failed: Payment information label is not visible.")
+            driver.quit()
+            return 1
+
     except Exception as e:
-        print(f"Test Failed: {str(e)}")
-        return -1
-    finally:
+        print(f"Test Failed with exception: {e}")
         driver.quit()
+        return 1
 
-# Run the test
-test_result = test_ui_scenario()
-exit(test_result)
-```
-
-This script uses Selenium with Python to automate a UI test scenario. It logs into an application, adds items to a cart, proceeds to checkout, enters customer details, and verifies that the payment information section is displayed. It returns `0` if the test passes and `-1` if it fails. Adjust the placeholder values with actual credentials and URLs.
+# Run the test case
+result = test_checkout_process()
+exit(result)

@@ -8,61 +8,77 @@ import time
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
+        self.username_input = '//*[@id="user-name"]'
+        self.password_input = '//*[@id="password"]'
+        self.login_button = '//*[@id="login-button"]'
 
     def login(self, username, password):
-        username_field = self.driver.find_element(By.XPATH, '//*[@id="user-name"]')
-        password_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
-        login_button = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
-        
-        username_field.clear()
-        username_field.send_keys(username)
-        password_field.clear()
-        password_field.send_keys(password)
-        login_button.click()
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, self.username_input))
+        )
+        self.driver.find_element(By.XPATH, self.username_input).send_keys(username)
 
-def test_add_items_to_cart():
-    # Initialize the WebDriver
-    driver = webdriver.Chrome()  # Assuming ChromeDriver is in the PATH
-    driver.get("https://www.example.com/login")  # Replace with the actual URL
-    driver.maximize_window()
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, self.password_input))
+        )
+        self.driver.find_element(By.XPATH, self.password_input).send_keys(password)
 
-    # Login
-    login_page = LoginPage(driver)
-    login_page.login("standard_user", "secret_sauce")
+        time.sleep(3)
 
-    # Wait for login to complete and element to be clickable
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, self.login_button))
+        )
+        self.driver.find_element(By.XPATH, self.login_button).click()
+
+def test_add_to_cart():
     try:
-        bike_light_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
-        )
-        fleece_jacket_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
-        )
+        driver = webdriver.Chrome()
+        driver.get("https://www.example.com")
+
+        login_page = LoginPage(driver)
+        login_page.login("testuser", "testpassword")
+
+        time.sleep(3)
         
-        # Add 'Bike Light' and 'Fleece Jacket' to the cart
-        bike_light_button.click()
-        time.sleep(1)  # Adding slight delay to ensure synchronization
-        fleece_jacket_button.click()
-
-        # Verify the cart count
-        cart_count = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
+        bike_light_xpath = '//*[@id="add-to-cart-sauce-labs-bike-light"]'
+        fleece_jacket_xpath = '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'
+        cart_count_xpath = '//*[@id="shopping_cart_container"]/a/span'
+        
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, bike_light_xpath))
         )
+        driver.find_element(By.XPATH, bike_light_xpath).click()
 
-        if cart_count.text == '2':
-            print("Test Passed: Cart displays 2 items")
-            driver.quit()
+        time.sleep(3)
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, fleece_jacket_xpath))
+        )
+        driver.find_element(By.XPATH, fleece_jacket_xpath).click()
+
+        time.sleep(3)
+
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, cart_count_xpath))
+        )
+        cart_count = driver.find_element(By.XPATH, cart_count_xpath).text
+
+        time.sleep(3)
+
+        driver.quit()
+
+        if cart_count == "2":
+            print("Test Passed")
             return 0
         else:
-            print("Test Failed: Cart count is incorrect")
-            driver.quit()
+            print("Test Failed")
             return -1
 
     except Exception as e:
-        print(f"Test Failed: {e}")
+        print("An exception occurred:", str(e))
         driver.quit()
         return -1
 
 if __name__ == "__main__":
-    result = test_add_items_to_cart()
+    result = test_add_to_cart()
     exit(result)
