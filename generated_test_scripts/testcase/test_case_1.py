@@ -2,104 +2,71 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 import time
 
-class LoginPage:
-    def __init__(self, driver):
-        self.driver = driver
-
-    def login(self, username, password):
-        wait = WebDriverWait(self.driver, 10)
-        usr_field = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="user-name"]')))
-        usr_field.send_keys(username)
-        time.sleep(3)
-
-        pwd_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
-        pwd_field.send_keys(password)
-        time.sleep(3)
-
-        login_btn = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
-        login_btn.click()
-        time.sleep(3)
-
-def test_purchase_flow():
-    options = Options()
-    options.headless = True
-    options.add_argument("--disable-notifications")
-    options.add_argument("--incognito")
-    
-    driver = webdriver.Chrome(options=options)
-    
+def test_ui_purchase_flow():
     try:
-        driver.get("https://www.example.com/login")
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--disable-notifications')
+        options.add_argument('--incognito')
+        
+        driver = webdriver.Chrome(options=options)
+        driver.implicitly_wait(10)
+
+        driver.get('https://saucedemo.com/')
         time.sleep(5)
+
         driver.maximize_window()
 
-        login_page = LoginPage(driver)
-        login_page.login("valid_username", "valid_password")
+        # Login
+        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys('standard_user')
+        driver.find_element(By.XPATH, '//*[@id="password"]').send_keys('secret_sauce')
+        driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-        wait = WebDriverWait(driver, 10)
-        
-        bike_light = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]')))
-        bike_light.click()
+        # Add items to cart
         time.sleep(3)
-        
-        fleece_jacket = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
-        fleece_jacket.click()
+        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
         time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
         
-        cart_icon = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a')
-        cart_icon.click()
+        # Proceed to cart and checkout
         time.sleep(3)
-        
-        checkout = driver.find_element(By.XPATH, '//*[@id="checkout"]')
-        checkout.click()
+        driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
         time.sleep(3)
-        
-        first_name = driver.find_element(By.XPATH, '//*[@id="first-name"]')
-        first_name.send_keys('somename')
-        time.sleep(3)
-        
-        last_name = driver.find_element(By.XPATH, '//*[@id="last-name"]')
-        last_name.send_keys('lastname')
-        time.sleep(3)
-        
-        postal_code = driver.find_element(By.XPATH, '//*[@id="postal-code"]')
-        postal_code.send_keys('123456')
-        time.sleep(3)
-        
-        continue_button = driver.find_element(By.XPATH, '//*[@id="continue"]')
-        continue_button.click()
-        time.sleep(3)
-        
-        finish_button = driver.find_element(By.XPATH, '//*[@id="finish"]')
-        finish_button.click()
-        time.sleep(3)
-        
-        back_to_products = driver.find_element(By.XPATH, '//*[@id="back-to-products"]')
-        back_to_products.click()
-        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
 
-        logout_sidebar = driver.find_element(By.XPATH, '//*[@id="react-burger-menu-btn"]')
-        logout_sidebar.click()
+        # Enter checkout information
         time.sleep(3)
-        
-        logout_button = driver.find_element(By.XPATH, '//*[@id="logout_sidebar_link"]')
-        logout_button.click()
-        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys('somename')
+        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys('lastname')
+        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys('123456')
+        driver.find_element(By.XPATH, '//*[@id="continue"]').click()
 
-        print("Test Passed")
+        # Complete purchase
+        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="finish"]').click()
+        
+        # Go back to products page
+        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="back-to-products"]').click()
+
+        # Logout
+        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="react-burger-menu-btn"]').click()
+        time.sleep(3)
+        driver.find_element(By.XPATH, '//*[@id="logout_sidebar_link"]').click()
+
+        time.sleep(3)
+        driver.quit()
         exit(0)
-    
-    except TimeoutException:
-        print("Test Failed: Timeout occurred")
+
+    except Exception as e:
+        print(f"Test failed: {e}")
+        if driver:
+            driver.quit()
         exit(1)
 
-    finally:
-        driver.quit()
-
 if __name__ == "__main__":
-    test_purchase_flow()
+    test_ui_purchase_flow()

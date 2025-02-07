@@ -1,97 +1,73 @@
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 import time
-import sys
 
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
 
     def login(self, username, password):
-        username_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="user-name"]'))
-        )
-        password_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
-        login_button = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
-        
-        username_field.send_keys(username)
-        time.sleep(3)
-        password_field.send_keys(password)
-        time.sleep(3)
-        login_button.click()
-        time.sleep(3)
+        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
+        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
+        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-def run_test():
+def setup_driver():
     options = Options()
     options.headless = True
     options.add_argument("--incognito")
     options.add_argument("--disable-notifications")
     options.add_argument("--disable-popup-blocking")
-    
     driver = webdriver.Chrome(options=options)
-    driver.get('https://example.com/')
-    time.sleep(5)
-    driver.maximize_window()
+    driver.implicitly_wait(5)
+    return driver
+
+def wait_and_act(driver, xpath):
     time.sleep(3)
+    driver.find_element(By.XPATH, xpath).click()
 
-    login_page = LoginPage(driver)
-    login_page.login("standard_user", "secret_sauce")
-
+def main():
+    driver = setup_driver()
     try:
-        # Add 'Bike Light' to cart
-        bike_light_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
-        )
-        bike_light_button.click()
-        time.sleep(3)
-        
-        # Add 'Fleece Jacket' to cart
-        fleece_jacket_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
-        )
-        fleece_jacket_button.click()
+        driver.get("https://www.saucedemo.com/")
+        driver.maximize_window()
+        time.sleep(5)
+
+        login_page = LoginPage(driver)
+        login_page.login("standard_user", "secret_sauce")
         time.sleep(3)
 
-        # Verify cart count is '2'
-        cart_count = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-        )
-        assert cart_count.text == '2', "Cart count is not 2"
-        time.sleep(3)
-        
-        # Reset cart (manual removal in this case)
-        bike_light_button.click()
-        time.sleep(3)
-        fleece_jacket_button.click()
-        time.sleep(3)
+        # Add 'Bike Light' and 'Fleece Jacket' to the cart
+        wait_and_act(driver, '//*[@id="add-to-cart-sauce-labs-bike-light"]')
+        wait_and_act(driver, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
 
-        cart_count = driver.execute_script(
-            "return document.querySelector('#shopping_cart_container a span') ? document.querySelector('#shopping_cart_container a span').textContent : '0'"
-        )
-        assert cart_count == '0', "Cart is not empty after reset"
+        # Assert that cart badge shows '2'
+        cart_badge = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
+        assert cart_badge.text == '2'
 
-        # Add 'Bolt T-Shirt' to cart
-        bolt_tshirt_button = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
-        )
-        bolt_tshirt_button.click()
+        # Reset cart
+        driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
         time.sleep(3)
+        wait_and_act(driver, '//*[@id="remove-sauce-labs-bike-light"]')
+        wait_and_act(driver, '//*[@id="remove-sauce-labs-bolt-t-shirt"]')
+        driver.get("https://www.saucedemo.com/") # Go back to home to refresh the cart
 
-        # Verify cart count is '1'
-        cart_count = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-        )
-        assert cart_count.text == '1', "Cart count is not 1"
+        # Add 'Bolt T-Shirt' to the cart after reset
+        wait_and_act(driver, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
 
-        sys.exit(0)
+        # Assert that cart badge shows '1'
+        cart_badge = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
+        assert cart_badge.text == '1'
+
+        print("Test case passed")
+        exit(0)
+
     except Exception as e:
-        print(f"Test failed: {e}")
-        sys.exit(1)
+        print("Test case failed:", str(e))
+        exit(1)
     finally:
         driver.quit()
 
-run_test()
+if __name__ == "__main__":
+    main()
