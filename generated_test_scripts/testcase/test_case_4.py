@@ -1,83 +1,98 @@
 
-import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
+import sys
 
-def login(driver):
-    driver.get("https://saucedemo.com/")
-    time.sleep(5)
-    driver.maximize_window()
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
 
-    wait = WebDriverWait(driver, 30)
+    def login(self, username, password):
+        time.sleep(3)  # Wait before action
+        username_field = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="user-name"]'))
+        )
+        password_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
+        login_button = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
 
-    username_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="user-name"]')))
-    password_input = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="password"]')))
-    login_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="login-button"]')))
+        username_field.send_keys(username)
+        time.sleep(3)  # Wait before action
+        password_field.send_keys(password)
+        time.sleep(3)  # Wait before action
+        login_button.click()
 
-    username_input.send_keys("standard_user")
-    time.sleep(3)
-    password_input.send_keys("secret_sauce")
-    time.sleep(3)
-    login_button.click()
-
-def test_checkout_flow():
+def run_test():
     options = Options()
     options.add_argument("--headless")
-    options.add_argument("--incognito")
     options.add_argument("--disable-notifications")
-    options.add_argument("--disable-popup-blocking")
-
+    options.add_argument("--incognito")
     driver = webdriver.Chrome(options=options)
 
     try:
-        login(driver)
+        driver.get("https://saucedemo.com/")
+        driver.maximize_window()
+        time.sleep(5)  # Wait after opening the page
 
-        wait = WebDriverWait(driver, 30)
+        login_page = LoginPage(driver)
+        login_page.login("standard_user", "secret_sauce")
 
-        bike_light = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]')))
-        bike_light.click()
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
+        bike_light_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
+        )
+        fleece_jacket_button = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
 
-        fleece_jacket = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')))
-        fleece_jacket.click()
-        time.sleep(3)
+        bike_light_button.click()
+        time.sleep(3)  # Wait before action
+        fleece_jacket_button.click()
+        time.sleep(3)  # Wait before action
 
-        cart_icon = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a')))
+        cart_icon = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a')
         cart_icon.click()
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
 
-        checkout_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="checkout"]')))
+        checkout_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="checkout"]'))
+        )
         checkout_button.click()
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
 
-        first_name = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="first-name"]')))
-        last_name = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="last-name"]')))
-        zip_code = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="postal-code"]')))
+        first_name = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="first-name"]'))
+        )
+        last_name = driver.find_element(By.XPATH, '//*[@id="last-name"]')
+        zip_code = driver.find_element(By.XPATH, '//*[@id="postal-code"]')
 
         first_name.send_keys("somename")
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
         last_name.send_keys("lastname")
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
         zip_code.send_keys("123456")
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
 
-        continue_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="continue"]')))
+        continue_button = driver.find_element(By.XPATH, '//*[@id="continue"]')
         continue_button.click()
-        time.sleep(3)
+        time.sleep(3)  # Wait before action
 
-        payment_info_label = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]')))
+        payment_information_label = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]'))
+        )
 
-        assert payment_info_label.is_displayed()
-        exit(0)
-
+        if payment_information_label.is_displayed():
+            print("Test passed")
+            sys.exit(0)
+        else:
+            print("Test failed")
+            sys.exit(1)
     except Exception as e:
-        print(f"Test failed: {e}")
-        exit(1)
-
+        print(f"An error occurred: {e}")
+        sys.exit(1)
     finally:
         driver.quit()
 
-test_checkout_flow()
+if __name__ == "__main__":
+    run_test()
