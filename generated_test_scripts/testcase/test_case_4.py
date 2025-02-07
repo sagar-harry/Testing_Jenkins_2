@@ -1,7 +1,7 @@
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 import time
 
 class LoginPage:
@@ -9,67 +9,75 @@ class LoginPage:
         self.driver = driver
 
     def login(self, username, password):
-        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
-        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
-        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
+        user_field = self.driver.find_element(By.XPATH, '//*[@id="user-name"]')
+        pass_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
+        login_button = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
 
-def main():
-    try:
-        # Set options for headless mode, incognito and disable notifications
-        options = Options()
-        options.headless = True
-        options.add_argument("--incognito")
-        prefs = {"profile.default_content_setting_values.notifications": 2}
-        options.add_experimental_option("prefs", prefs)
+        user_field.send_keys(username)
+        time.sleep(3)
+        pass_field.send_keys(password)
+        time.sleep(3)
 
-        # Initialize webdriver
-        driver = webdriver.Chrome(options=options)
-        
-        # Maximize the browser window and wait
-        driver.maximize_window()
-        driver.get('http://example-store.com/login')
+        login_button.click()
         time.sleep(5)
 
-        # Create login page object and login
+def run_test():
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--incognito')
+    options.add_argument('--disable-notifications')
+    options.add_argument('--disable-popup-blocking')
+    driver = webdriver.Chrome(options=options)
+
+    try:
+        driver.get('URL_OF_THE_APPLICATION')
+        time.sleep(5)
+        driver.maximize_window()
+        time.sleep(3)
+
         login_page = LoginPage(driver)
         login_page.login('standard_user', 'secret_sauce')
+
+        bike_light = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]')
+        fleece_jacket = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
+        cart_icon = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a')
+        checkout = driver.find_element(By.XPATH, '//*[@id="checkout"]')
+        first_name = driver.find_element(By.XPATH, '//*[@id="first-name"]')
+        last_name = driver.find_element(By.XPATH, '//*[@id="last-name"]')
+        zip_code = driver.find_element(By.XPATH, '//*[@id="postal-code"]')
+        continue_button = driver.find_element(By.XPATH, '//*[@id="continue"]')
+        payment_info_card = By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]'
+
+        bike_light.click()
+        time.sleep(3)
+        fleece_jacket.click()
+        time.sleep(3)
+        cart_icon.click()
+        time.sleep(3)
+        checkout.click()
         time.sleep(3)
 
-        # Add items to cart
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
+        first_name.send_keys('somename')
         time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
+        last_name.send_keys('lastname')
         time.sleep(3)
-
-        # Proceed to checkout
-        driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
+        zip_code.send_keys('123456')
         time.sleep(3)
 
-        # Fill in checkout information
-        driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys('somename')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys('lastname')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys('123456')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="continue"]').click()
-        time.sleep(3)
+        continue_button.click()
+        time.sleep(5)
 
-        # Verify payment information is displayed
-        payment_info_visible = driver.find_element(By.XPATH, '//*[@id="checkout_summary_container"]/div/div[2]/div[1]').is_displayed()
-        if payment_info_visible:
-            driver.quit()
-            exit(0)
+        if driver.find_element(*payment_info_card).is_displayed():
+            exit_code = 0
         else:
-            driver.quit()
-            exit(1)
+            exit_code = 1
 
     except Exception as e:
-        print(f'An error occurred: {e}')
-        driver.quit()
-        exit(1)
+        print(f"Test failed: {e}")
+        exit_code = 1
 
-if __name__ == '__main__':
-    main()
+    driver.quit()
+    exit(exit_code)
+
+if __name__ == "__main__":
+    run_test()
