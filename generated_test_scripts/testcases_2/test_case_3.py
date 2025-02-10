@@ -7,49 +7,46 @@ from selenium.webdriver.support import expected_conditions as EC
 import sys
 import time
 
-def test_ui_scenario():
-    try:
-        # Set up Chrome options
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-notifications")
-        chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument("--incognito")
+def run_test():
+    # Set up Chrome options
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-notifications")
+    options.add_argument("--incognito")
+    options.add_argument("--disable-popup-blocking")
 
-        # Initialize WebDriver
-        driver = webdriver.Chrome(options=chrome_options)
-        
-        # Maximize the window
+    # Initialize WebDriver
+    driver = webdriver.Chrome(options=options)
+
+    try:
+        # Open the webpage
+        driver.get("http://example.com")  # Placeholder URL
+        time.sleep(5)  # Wait for 5 secs after opening the page
         driver.maximize_window()
 
-        # Open the page (Assumed test URL)
-        driver.get('http://example.com')
-        
-        # Wait for 5 seconds
-        time.sleep(5)
+        # Test Steps
+        locator = (By.ID, "exampleLocator")  # Placeholder locator
 
-        # Example test case actions
-        wait = WebDriverWait(driver, 30)
+        # Wait for the element to appear
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located(locator))
+        time.sleep(3)  # Wait for 3 secs before every action
 
-        # Wait for element to appear (Assumed locator and action)
-        sample_locator = (By.ID, "sampleElementId")
-        wait.until(EC.visibility_of_element_located(sample_locator))
-        
-        # Simulate action on the element
-        time.sleep(3)
-        element = driver.find_element(*sample_locator)
+        # Example action: Click on the element
+        element = driver.find_element(*locator)
         element.click()
+        time.sleep(3)
 
-        # Further actions can be defined here with time.sleep(3) before each
+        # More steps can be added here following the similar pattern
 
-        # If all actions succeed
-        driver.quit()
+        # If all steps pass
         sys.exit(0)
-
+    
     except Exception as e:
-        # If any exception occurs, print it and exit with code 1
-        print(f"Test failed: {str(e)}")
-        driver.quit()
+        print(f"Error: {e}")
         sys.exit(1)
+    
+    finally:
+        driver.quit()
 
-test_ui_scenario()
+if __name__ == "__main__":
+    run_test()

@@ -7,37 +7,49 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import sys
 
-def test_ui():
-    options = Options()
-    options.headless = True
-    options.add_argument("--disable-notifications")
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument("--incognito")
-
-    driver = webdriver.Chrome(options=options)
-
+def test_ui_scenario():
+    # Set up options for headless, disable notifications and incognito mode
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--incognito")
+    
+    # Initialize driver
+    driver = webdriver.Chrome(options=chrome_options)
+    
     try:
-        driver.maximize_window()
+        # Open the webpage
         driver.get("http://example.com")
+        
+        # Wait for 5 seconds after opening the page
         time.sleep(5)
+        
+        # Maximize the window
+        driver.maximize_window()
+        
+        # Example interaction with the page
+        time.sleep(3)  # Wait before interacting with elements
 
-        locator = (By.XPATH, "fnan")
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located(locator))
-        time.sleep(3)
+        # Wait for the element to appear and interact with it
+        element_locator = (By.ID, "fnan")
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located(element_locator))
+        
+        # Example action
+        driver.find_element(*element_locator).click()
+        
+        time.sleep(3)  # Wait before finishing test
 
-        element = driver.find_element(*locator)
-        # Additional actions can be added here.
-        # Example: element.click()
-        time.sleep(3)
-
-        print("Test case passed")
+        # Exit with code 0 if test passed
         sys.exit(0)
 
     except Exception as e:
-        print(f"Test case failed with exception: {e}")
+        print(f"Test case failed: {e}")
+        
+        # Exit with code 1 if test failed
         sys.exit(1)
 
     finally:
         driver.quit()
 
-test_ui()
+if __name__ == "__main__":
+    test_ui_scenario()

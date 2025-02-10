@@ -5,71 +5,70 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-import sys
 
-class LoginPage:
-    def __init__(self, driver):
-        self.driver = driver
+def main():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--incognito")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--disable-popup-blocking")
 
-    def login(self, username, password):
-        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
-        time.sleep(3)
-        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
-        time.sleep(3)
-        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
-        WebDriverWait(self.driver, 10).until(EC.url_changes('https://saucedemo.com/'))
+    driver = webdriver.Chrome(options=chrome_options)
 
-def run_test():
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-notifications')
-    options.add_argument('--disable-popup-blocking')
-    options.add_argument('--incognito')
-
-    driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(5)
-    driver.get('https://saucedemo.com/')
-    driver.maximize_window()
-    time.sleep(5)
-
-    login_page = LoginPage(driver)
     try:
-        login_page.login('standard_user', 'secret_sauce')
-        time.sleep(3)
+        driver.get("https://saucedemo.com/")
+        time.sleep(5)
+        driver.maximize_window()
 
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))).click()
-        time.sleep(3)
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))).click()
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
-        time.sleep(3)
+        # Login
+        login(driver)
 
-        driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys('somename')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys('lastname')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys('123456')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="continue"]').click()
-        time.sleep(3)
+        # Add Bike Light and Fleece Jacket to cart
+        wait_and_click(driver, By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]')
+        wait_and_click(driver, By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
 
-        driver.find_element(By.XPATH, '//*[@id="finish"]').click()
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="back-to-products"]')))
-        time.sleep(3)
+        # Click on cart icon
+        wait_and_click(driver, By.XPATH, '//*[@id="shopping_cart_container"]/a')
 
-        driver.find_element(By.XPATH, '//*[@id="react-burger-menu-btn"]').click()
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="logout_sidebar_link"]').click()
-        WebDriverWait(driver, 10).until(EC.url_to_be('https://saucedemo.com/'))
-        sys.exit(0)
-        
+        # Proceed to checkout
+        wait_and_click(driver, By.XPATH, '//*[@id="checkout"]')
+        wait_and_fill(driver, By.XPATH, '//*[@id="first-name"]', 'somename')
+        wait_and_fill(driver, By.XPATH, '//*[@id="last-name"]', 'lastname')
+        wait_and_fill(driver, By.XPATH, '//*[@id="postal-code"]', '123456')
+
+        # Continue and complete purchase
+        wait_and_click(driver, By.XPATH, '//*[@id="continue"]')
+        wait_and_click(driver, By.XPATH, '//*[@id="finish"]')
+
+        # Return to homepage
+        wait_and_click(driver, By.XPATH, '//*[@id="back-to-products"]')
+
+        # Logout
+        wait_and_click(driver, By.XPATH, '//*[@id="react-burger-menu-btn"]')
+        wait_and_click(driver, By.XPATH, '//*[@id="logout_sidebar_link"]')
+
+        exit(0)
+
     except Exception as e:
-        print(e)
-        sys.exit(1)
+        print(f"Test failed: {e}")
+        exit(1)
     finally:
         driver.quit()
 
+def login(driver):
+    wait_and_fill(driver, By.XPATH, '//*[@id="user-name"]', 'standard_user')
+    wait_and_fill(driver, By.XPATH, '//*[@id="password"]', 'secret_sauce')
+    wait_and_click(driver, By.XPATH, '//*[@id="login-button"]')
+
+def wait_and_click(driver, by, value):
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((by, value)))
+    time.sleep(3)
+    driver.find_element(by, value).click()
+
+def wait_and_fill(driver, by, value, text):
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((by, value)))
+    time.sleep(3)
+    driver.find_element(by, value).send_keys(text)
+
 if __name__ == "__main__":
-    run_test()
+    main()
