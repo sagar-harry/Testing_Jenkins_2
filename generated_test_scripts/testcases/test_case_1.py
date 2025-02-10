@@ -1,93 +1,84 @@
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 import time
 import sys
 
-def test_purchase_flow():
+def main():
     try:
-        options = Options()
-        options.headless = True
-        options.add_argument("--incognito")
-        options.add_argument("--disable-notifications")
-        options.add_argument("--disable-popup-blocking")
+        # Configure Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_argument("--disable-popup-blocking")
+        chrome_options.add_argument("--incognito")
 
-        driver = webdriver.Chrome(options=options)
+        # Initialize WebDriver
+        driver = webdriver.Chrome(options=chrome_options)
+
+        # Go to URL
         driver.get("https://saucedemo.com/")
-        
-        time.sleep(5)
+        time.sleep(5)  # Wait 5 seconds
         driver.maximize_window()
-        
+
         # Login
-        login_page = LoginPage(driver)
-        login_page.login("standard_user", "secret_sauce")
-        
-        time.sleep(3)
+        login_page(driver)
         
         # Add items to cart
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
         time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
+        add_to_cart(driver, "bike light")
+        time.sleep(3)
+        add_to_cart(driver, "fleece jacket")
         
+        # Go to cart and proceed to checkout
         time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a').click()
-        
         time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="checkout"]').click()
         
-        # Checkout
-        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="first-name"]')))
-        
+        # Enter user information
+        time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="first-name"]').send_keys("somename")
-        time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="last-name"]').send_keys("lastname")
-        time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="postal-code"]').send_keys("123456")
         
+        # Complete purchase
         time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="continue"]').click()
-        
         time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="finish"]').click()
         
+        # Return to homepage
         time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="back-to-products"]').click()
         
         # Logout
         time.sleep(3)
         driver.find_element(By.XPATH, '//*[@id="react-burger-menu-btn"]').click()
-        
         time.sleep(3)
-        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="logout_sidebar_link"]')))
         driver.find_element(By.XPATH, '//*[@id="logout_sidebar_link"]').click()
-        
+
+        # Close driver
         driver.quit()
         sys.exit(0)
-        
+
     except Exception as e:
-        print(str(e))
+        print(f"Test failed: {e}")
         driver.quit()
         sys.exit(1)
 
-class LoginPage:
-    def __init__(self, driver):
-        self.driver = driver
+def login_page(driver):
+    driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys("standard_user")
+    driver.find_element(By.XPATH, '//*[@id="password"]').send_keys("secret_sauce")
+    time.sleep(3)
+    driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
 
-    def login(self, username, password):
-        WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="user-name"]')))
-        
-        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys(username)
-        time.sleep(3)
-        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
-        
-        time.sleep(3)
-        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
-        
-        time.sleep(3)
+def add_to_cart(driver, item_name):
+    if item_name == "bike light":
+        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
+    elif item_name == "fleece jacket":
+        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
 
 if __name__ == "__main__":
-    test_purchase_flow()
+    main()

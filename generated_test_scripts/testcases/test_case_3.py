@@ -4,90 +4,89 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from time import sleep
+import time
 
-class LoginPage:
-    def __init__(self, driver):
-        self.driver = driver
-
-    def login(self, username, password):
-        username_field = WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="user-name"]'))
-        )
-        password_field = self.driver.find_element(By.XPATH, '//*[@id="password"]')
-        login_button = self.driver.find_element(By.XPATH, '//*[@id="login-button"]')
-
-        username_field.send_keys(username)
-        password_field.send_keys(password)
-        sleep(3)
-        login_button.click()
-        sleep(3)
-
-def main():
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-notifications')
-    options.add_argument('--incognito')
-    
-    driver = webdriver.Chrome(options=options)
-    driver.get('https://saucedemo.com/')
-    driver.maximize_window()
-    sleep(5)
-
-    # Login to application
-    login_page = LoginPage(driver)
-    login_page.login('standard_user', 'secret_sauce')
-
+def test_cart_functionality():
     try:
-        # Add Bike Light and Fleece Jacket to the cart
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
-        ).click()
-        sleep(3)
+        # Set up Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_argument("--disable-popup-blocking")
+        chrome_options.add_argument("--incognito")
 
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
-        ).click()
-        sleep(3)
+        # Set up the WebDriver
+        driver = webdriver.Chrome(options=chrome_options)
 
-        # Verify the cart badge is 2
-        cart_count = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-        ).text
-        assert cart_count == '2'
-        sleep(3)
+        try:
+            # Open the website
+            driver.get("https://saucedemo.com/")
+            time.sleep(5)  # Wait for 5 secs
 
-        # Reset the cart (remove the added products)
-        driver.find_element(By.ID, "react-burger-menu-btn").click()
-        sleep(3)
+            # Maximize the window
+            driver.maximize_window()
 
-        driver.find_element(By.ID, "reset_sidebar_link").click()
-        sleep(3)
+            # Log in to the application
+            login(driver)
 
-        # Verify the cart is empty
-        cart_badge = driver.find_elements(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
-        assert not cart_badge
-        sleep(3)
+            # Add 'Bike Light' to the cart
+            wait_for_element(driver, By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
+            time.sleep(3)
 
-        # Add Bolt T-Shirt to the cart after reset
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-onesie"]'))
-        ).click()
-        sleep(3)
+            # Add 'Fleece Jacket' to the cart
+            wait_for_element(driver, By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
+            time.sleep(3)
 
-        # Verify the cart badge is 1
-        cart_count = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-        ).text
-        assert cart_count == '1'
-        sleep(3)
+            # Verify cart badge displays '2'
+            cart_count = wait_for_element(driver, By.XPATH, '//*[@id="shopping_cart_container"]/a/span').text
+            assert cart_count == '2', "Cart badge did not display '2'"
 
-        driver.quit()
-        exit(0)
+            # Reset the cart
+            remove_items_from_cart(driver)
 
-    except AssertionError as e:
-        driver.quit()
-        exit(1)
+            # Verify the cart is empty
+            cart_count = driver.find_elements(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
+            assert len(cart_count) == 0, "Cart is not empty"
 
-if __name__ == "__main__":
-    main()
+            # Add 'Bolt T-Shirt' to the cart after reset
+            wait_for_element(driver, By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
+            time.sleep(3)
+
+            # Verify cart badge displays '1'
+            cart_count = wait_for_element(driver, By.XPATH, '//*[@id="shopping_cart_container"]/a/span').text
+            assert cart_count == '1', "Cart badge did not display '1'"
+
+            # Exit with code 0 if test case passed
+            return 0
+            
+        finally:
+            # Quit the driver
+            driver.quit()
+
+    except Exception as e:
+        print(f"Test failed: {e}")
+        # Exit with code 1 if test case failed
+        return 1
+
+def login(driver):
+    wait_for_element(driver, By.XPATH, '//*[@id="user-name"]').send_keys("standard_user")
+    wait_for_element(driver, By.XPATH, '//*[@id="password"]').send_keys("secret_sauce")
+    wait_for_element(driver, By.XPATH, '//*[@id="login-button"]').click()
+    time.sleep(3)
+
+def remove_items_from_cart(driver):
+    # Navigate to cart and remove items
+    driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]').click()
+    time.sleep(3)
+    remove_buttons = driver.find_elements(By.XPATH, '//button[text()="Remove"]')
+    for button in remove_buttons:
+        button.click()
+        time.sleep(3)
+
+def wait_for_element(driver, by, value, timeout=10):
+    return WebDriverWait(driver, timeout).until(
+        EC.presence_of_element_located((by, value))
+    )
+
+# Run the test case
+exit(test_cart_functionality())
