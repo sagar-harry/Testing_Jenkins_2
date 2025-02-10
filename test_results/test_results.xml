@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<testsuites>
+    <testsuite name="testcases" tests="4" failures="2" errors="0" skipped="0">
+        <testcase classname="test_case_1.py" name="E2E Checkout Flow" time="76.912162">
+            <system-out>Success</system-out>
+        </testcase>
+        <testcase classname="test_case_2.py" name="Add Items to Cart" time="34.5413">
+            <system-out>Success</system-out>
+        </testcase>
+        <testcase classname="test_case_3.py" name="nan" time="12.967473">
+            <failure message="nan">Test case failed</failure>
+        </testcase>
+        <testcase classname="test_case_4.py" name="nan" time="46.631599">
+            <failure message="nan">Test case failed</failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="testcases_2" tests="4" failures="2" errors="0" skipped="0">
+        <testcase classname="test_case_1.py" name="E2E Checkout Flow" time="92.01365">
+            <system-out>Success</system-out>
+        </testcase>
+        <testcase classname="test_case_2.py" name="Add Items to Cart" time="33.843003">
+            <system-out>Success</system-out>
+        </testcase>
+        <testcase classname="test_case_3.py" name="nan" time="53.099054">
+            <failure message="nan">Test case failed</failure>
+        </testcase>
+        <testcase classname="test_case_4.py" name="nan" time="52.957044">
+            <failure message="nan">Test case failed</failure>
+        </testcase>
+    </testsuite>
+</testsuites>
