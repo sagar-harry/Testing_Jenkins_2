@@ -5,7 +5,7 @@
             "script_name": "test_case_1.py",
             "test_case_index": "1",
             "test_case_name": "E2E Checkout Flow",
-            "execution_time": "76.912162",
+            "execution_time": "67.80788",
             "status": "Success"
         },
         "test_case_2": {
@@ -13,7 +13,7 @@
             "script_name": "test_case_2.py",
             "test_case_index": "2",
             "test_case_name": "Add Items to Cart",
-            "execution_time": "34.5413",
+            "execution_time": "27.105537",
             "status": "Success"
         },
         "test_case_3": {
@@ -21,7 +21,7 @@
             "script_name": "test_case_3.py",
             "test_case_index": "3",
             "test_case_name": "nan",
-            "execution_time": "12.967473",
+            "execution_time": "19.05818",
             "status": "Failed"
         },
         "test_case_4": {
@@ -29,7 +29,7 @@
             "script_name": "test_case_4.py",
             "test_case_index": "4",
             "test_case_name": "nan",
-            "execution_time": "46.631599",
+            "execution_time": "26.067139",
             "status": "Failed"
         },
         "summary": {
@@ -43,7 +43,7 @@
             "script_name": "test_case_1.py",
             "test_case_index": "1",
             "test_case_name": "E2E Checkout Flow",
-            "execution_time": "92.01365",
+            "execution_time": "66.253364",
             "status": "Success"
         },
         "test_case_2": {
@@ -51,7 +51,7 @@
             "script_name": "test_case_2.py",
             "test_case_index": "2",
             "test_case_name": "Add Items to Cart",
-            "execution_time": "33.843003",
+            "execution_time": "38.336441",
             "status": "Success"
         },
         "test_case_3": {
@@ -59,7 +59,7 @@
             "script_name": "test_case_3.py",
             "test_case_index": "3",
             "test_case_name": "nan",
-            "execution_time": "53.099054",
+            "execution_time": "24.916399",
             "status": "Failed"
         },
         "test_case_4": {
@@ -67,7 +67,7 @@
             "script_name": "test_case_4.py",
             "test_case_index": "4",
             "test_case_name": "nan",
-            "execution_time": "52.957044",
+            "execution_time": "15.949487",
             "status": "Failed"
         },
         "summary": {
