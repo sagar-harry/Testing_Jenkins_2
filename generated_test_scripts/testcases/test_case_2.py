@@ -2,53 +2,58 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
 
-    def login(self):
-        self.driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys("standard_user")
-        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys("secret_sauce")
-        self.driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
+    def login(self, username, password):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="user-name"]'))).send_keys(username)
+        time.sleep(3)
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="password"]'))).send_keys(password)
+        time.sleep(3)
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="login-button"]'))).click()
+        time.sleep(3)
 
-def test_cart_count():
+def test_ui():
     options = Options()
-    options.headless = True
-    options.add_argument("--disable-notifications")
-    options.add_argument("--incognito")
+    options.add_argument('--headless')
+    options.add_argument('--disable-notifications')
+    options.add_argument('--incognito')
 
     driver = webdriver.Chrome(options=options)
 
     try:
-        driver.maximize_window()
         driver.get("https://saucedemo.com/")
         time.sleep(5)
+        driver.maximize_window()
 
         login_page = LoginPage(driver)
-        time.sleep(3)
-        login_page.login()
+        login_page.login("standard_user", "secret_sauce")
 
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))).click()
         time.sleep(3)
 
-        driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))).click()
         time.sleep(3)
 
-        cart_count_element = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
-        cart_count = cart_count_element.text
+        cart_count = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span')))
         
-        assert cart_count == '2', f"Expected cart count '2', but got '{cart_count}'"
-        
-        exit(0)  # Exit with code 0 if test passed
+        if cart_count.text == "2":
+            print("Test Passed")
+            exit(0)
+        else:
+            print("Test Failed")
+            exit(1)
 
     except Exception as e:
-        print(str(e))
-        exit(1)  # Exit with code 1 if test failed
+        print(f"Test Failed: {e}")
+        exit(1)
 
     finally:
         driver.quit()
 
-test_cart_count()
+test_ui()
