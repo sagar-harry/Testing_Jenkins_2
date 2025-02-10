@@ -2,51 +2,44 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import sys
 import time
 
-def run_test():
-    # Set up Chrome options
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-notifications")
-    options.add_argument("--incognito")
-    options.add_argument("--disable-popup-blocking")
-
-    # Initialize WebDriver
-    driver = webdriver.Chrome(options=options)
-
+def test_ui_scenario():
+    # Setting up Chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--incognito")
+    chrome_options.add_argument("--window-size=1920,1080")
+    
+    # Initialize the WebDriver
+    driver = webdriver.Chrome(options=chrome_options)
+    
     try:
-        # Open the webpage
-        driver.get("http://example.com")  # Placeholder URL
-        time.sleep(5)  # Wait for 5 secs after opening the page
+        # Open the URL
+        driver.get("http://example.com")  # Replace with the actual URL
+        time.sleep(5)
+        
+        # Maximize window (implicitly does nothing in headless mode)
         driver.maximize_window()
-
-        # Test Steps
-        locator = (By.ID, "exampleLocator")  # Placeholder locator
-
-        # Wait for the element to appear
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located(locator))
-        time.sleep(3)  # Wait for 3 secs before every action
-
-        # Example action: Click on the element
-        element = driver.find_element(*locator)
-        element.click()
+        
+        # Perform test actions
+        # Example: Find and interact with an element
         time.sleep(3)
-
-        # More steps can be added here following the similar pattern
-
-        # If all steps pass
-        sys.exit(0)
-    
+        element = driver.find_element(By.CSS_SELECTOR, "some-locator")  # Replace with actual locator
+        element.click()  # Example action on the element
+        
+        # Example of assertions and waiting for visibility
+        time.sleep(3)
+        assert "expected text" in driver.page_source  # Replace with actual condition
+        
+        exit(0)  # Exit with success code if the test passes
     except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    
+        print(f"Test failed: {e}")
+        exit(1)  # Exit with failure code if the test fails
     finally:
+        # Close the WebDriver
         driver.quit()
 
 if __name__ == "__main__":
-    run_test()
+    test_ui_scenario()
