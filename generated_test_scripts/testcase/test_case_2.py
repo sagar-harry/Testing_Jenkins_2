@@ -1,63 +1,69 @@
 
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import time
-import sys
 
-# Configure options for headless, incognito, disable notifications
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--incognito")
-chrome_options.add_argument("--disable-notifications")
-chrome_options.add_argument("--start-maximized")
+class LoginPage:
+    def __init__(self, driver):
+        self.driver = driver
 
-# Initialize WebDriver
-driver = webdriver.Chrome(options=chrome_options)
+    def login(self, username, password):
+        user_name_input = driver.find_element(By.XPATH, '//*[@id="user-name"]')
+        password_input = driver.find_element(By.XPATH, '//*[@id="password"]')
+        login_button = driver.find_element(By.XPATH, '//*[@id="login-button"]')
+        
+        user_name_input.clear()
+        user_name_input.send_keys(username)
+        password_input.clear()
+        password_input.send_keys(password)
+        time.sleep(3)
+        login_button.click()
+        time.sleep(3)
 
-try:
-    # Open website
-    driver.get("https://saucedemo.com/")
-    time.sleep(5)
-    
-    # Login using LoginPage class method (assuming it's implemented correctly)
-    driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys('standard_user')
-    driver.find_element(By.XPATH, '//*[@id="password"]').send_keys('secret_sauce')
-    login_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="login-button"]'))
-    )
-    login_button.click()
-    time.sleep(3)
+def main():
+    try:
+        url = "https://saucedemo.com/"
+        username = "standard_user"
+        password = "secret_sauce"
 
-    # Add 'Bike Light' to the cart
-    bike_light = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]'))
-    )
-    bike_light.click()
-    time.sleep(3)
+        # Set up Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_argument("--incognito")
 
-    # Add 'Fleece Jacket' to the cart
-    fleece_jacket = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]'))
-    )
-    fleece_jacket.click()
-    time.sleep(3)
+        # Initialize the webdriver
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.maximize_window()
+        driver.get(url)
+        time.sleep(5)
 
-    # Verify cart badge shows '2'
-    cart_count = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-    )
-    if cart_count.text == '2':
-        print("Test Passed: Cart badge displays '2'")
-        sys.exit(0)
-    else:
-        print("Test Failed: Cart badge does not display '2'")
-        sys.exit(1)
+        # Perform login
+        login_page = LoginPage(driver)
+        login_page.login(username, password)
 
-except Exception as e:
-    print(f"Test Failed: An exception occurred - {e}")
-    sys.exit(1)
-finally:
-    driver.quit()
+        # Add 'Bike Light' to the cart
+        bike_light_button = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]')
+        bike_light_button.click()
+        time.sleep(3)
+
+        # Add 'Fleece Jacket' to the cart
+        fleece_jacket_button = driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]')
+        fleece_jacket_button.click()
+        time.sleep(3)
+
+        # Verify cart count
+        cart_count = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
+        assert cart_count.text == "2", "Cart item count is incorrect"
+        
+        driver.quit()
+        exit(0)
+
+    except Exception as e:
+        print(f"Test failed: {e}")
+        driver.quit()
+        exit(1)
+
+if __name__ == "__main__":
+    main()
