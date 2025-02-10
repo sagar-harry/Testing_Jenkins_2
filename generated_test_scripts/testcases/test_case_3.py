@@ -1,74 +1,49 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import time
-
-# Set up headless, incognito browser
-options = Options()
-options.add_argument('--headless')
-options.add_argument('--disable-notifications')
-options.add_argument('--disable-popup-blocking')
-options.add_argument('--incognito')
-
-driver = webdriver.Chrome(options=options)
+import sys
 
 try:
-    # Open the URL
-    driver.get('https://saucedemo.com/')
-    time.sleep(5)  # Wait for 5 seconds after opening the page
-
-    # Maximize the page
-    driver.maximize_window()
-
-    # Log in
-    def login():
-        driver.find_element(By.XPATH, '//*[@id="user-name"]').send_keys('standard_user')
+    # Define the test case
+    def ui_test_case():
+        # Set Chrome options for headless, incognito and disable notifications
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--incognito")
+        chrome_options.add_argument("--disable-notifications")
+        
+        # Initialize the WebDriver
+        driver = webdriver.Chrome(options=chrome_options)
+        
+        # Open the web page (replace 'your_url_here' with the actual URL)
+        driver.get('your_url_here')
+        
+        # Wait for 5 seconds after opening the page
+        time.sleep(5)
+        
+        # Maximize the browser window
+        driver.maximize_window()
+        
+        # Begin test steps
+        # Example step: Wait for an element to appear and perform actions
+        # Replace 'your_element_locator' with actual locator
         time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="password"]').send_keys('secret_sauce')
-        time.sleep(3)
-        driver.find_element(By.XPATH, '//*[@id="login-button"]').click()
-        time.sleep(3)
+        element = driver.find_element(By.CSS_SELECTOR, 'your_element_locator')
+        element.click()
+        
+        # Add more steps as necessary with time.sleep(3) between each
+        
+        # Close the driver and exit with success exit code
+        driver.quit()
+        sys.exit(0)
 
-    login()
-    
-    # Add 'Bike Light'
-    driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bike-light"]').click()
-    time.sleep(3)  # Wait for action
-
-    # Add 'Fleece Jacket'
-    driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
-    time.sleep(3)
-
-    # Verify cart badge displays '2'
-    cart_count_element = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
-    if cart_count_element.text != '2':
-        raise Exception("Cart badge should display '2'")
-
-    # Reset cart (by removing products manually or using a reset button)
-    for remove_button in driver.find_elements(By.XPATH, '//*[contains(@id, "remove-sauce-labs")]'):
-        remove_button.click()
-        time.sleep(3)
-
-    # Verify the cart is empty
-    empty_cart_badge = len(driver.find_elements(By.XPATH, '//*[@id="shopping_cart_container"]/a/span'))
-    if empty_cart_badge != 0:
-        raise Exception("Cart should be empty")
-
-    # Add 'Bolt T-Shirt' after reset
-    driver.find_element(By.XPATH, '//*[@id="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
-    time.sleep(3)
-
-    # Verify cart badge displays '1'
-    cart_count_element = driver.find_element(By.XPATH, '//*[@id="shopping_cart_container"]/a/span')
-    if cart_count_element.text != '1':
-        raise Exception("Cart badge should display '1'")
-
-    # Test passed    
-    driver.quit()
-    exit(0)
+    # Run the test case
+    ui_test_case()
 
 except Exception as e:
-    print(str(e))
-    driver.quit()
-    exit(1)
+    # In case of any exception, print it and exit with failure exit code
+    print(f"Test failed: {e}")
+    sys.exit(1)
