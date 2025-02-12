@@ -1,78 +1,46 @@
 {
-    "testcases": {
+    "sprint_1": {
         "test_case_1": {
-            "csv_name": "testcases.csv",
+            "csv_name": "sprint_1.csv",
             "script_name": "test_case_1.py",
             "test_case_index": "1",
-            "test_case_name": "E2E Checkout Flow",
-            "execution_time": "67.80788",
-            "status": "Success"
+            "test_case_name": "Validate Reset Functionality",
+            "execution_time": "48.17391",
+            "status": "Failed"
         },
         "test_case_2": {
-            "csv_name": "testcases.csv",
+            "csv_name": "sprint_1.csv",
             "script_name": "test_case_2.py",
             "test_case_index": "2",
-            "test_case_name": "Add Items to Cart",
-            "execution_time": "27.105537",
+            "test_case_name": "Checkout Process Validation",
+            "execution_time": "74.936567",
             "status": "Success"
         },
-        "test_case_3": {
-            "csv_name": "testcases.csv",
-            "script_name": "test_case_3.py",
-            "test_case_index": "3",
-            "test_case_name": "nan",
-            "execution_time": "19.05818",
-            "status": "Failed"
-        },
-        "test_case_4": {
-            "csv_name": "testcases.csv",
-            "script_name": "test_case_4.py",
-            "test_case_index": "4",
-            "test_case_name": "nan",
-            "execution_time": "26.067139",
-            "status": "Failed"
-        },
         "summary": {
-            "total_tests": "4",
-            "failures": "2"
+            "total_tests": "2",
+            "failures": "1"
         }
     },
-    "testcases_2": {
+    "sprint_2": {
         "test_case_1": {
-            "csv_name": "testcases_2.csv",
+            "csv_name": "sprint_2.csv",
             "script_name": "test_case_1.py",
             "test_case_index": "1",
             "test_case_name": "E2E Checkout Flow",
-            "execution_time": "66.253364",
+            "execution_time": "85.703261",
             "status": "Success"
         },
         "test_case_2": {
-            "csv_name": "testcases_2.csv",
+            "csv_name": "sprint_2.csv",
             "script_name": "test_case_2.py",
             "test_case_index": "2",
             "test_case_name": "Add Items to Cart",
-            "execution_time": "38.336441",
+            "execution_time": "38.122674",
             "status": "Success"
         },
-        "test_case_3": {
-            "csv_name": "testcases_2.csv",
-            "script_name": "test_case_3.py",
-            "test_case_index": "3",
-            "test_case_name": "nan",
-            "execution_time": "24.916399",
-            "status": "Failed"
-        },
-        "test_case_4": {
-            "csv_name": "testcases_2.csv",
-            "script_name": "test_case_4.py",
-            "test_case_index": "4",
-            "test_case_name": "nan",
-            "execution_time": "15.949487",
-            "status": "Failed"
-        },
         "summary": {
-            "total_tests": "4",
-            "failures": "2"
+            "total_tests": "2",
+            "failures": "0"
         }
     }
 }
