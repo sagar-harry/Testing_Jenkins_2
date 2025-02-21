@@ -2,7 +2,7 @@
     "ingram_test_cases - sheet1": {
         "test_case_1": {
             "csv_name": "ingram_test_cases - sheet1.csv",
-            "script_name": "test_case_1.py",
+            "script_name": "test_case_1.java",
             "test_case_index": "1",
             "test_case_name": "Verify search by 'Invoice number' option in Invoice Search screens"
         }
