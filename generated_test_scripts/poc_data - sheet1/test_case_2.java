@@ -6,7 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 public class UITest {
     public static void main(String[] args) {
@@ -15,49 +15,50 @@ public class UITest {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--disable-notifications");
-        options.addArguments("--disable-popup-blocking");
         options.addArguments("--incognito");
-
+        
         WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, 10);
 
         try {
-            driver.get("http://yourpageurl.com");
             driver.manage().window().maximize();
-            TimeUnit.SECONDS.sleep(5);
+            driver.get("http://yourwebsite.com");
+            Thread.sleep(5000);
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
             By usernameLocator = By.xpath("//input[@name='username']");
             By passwordLocator = By.xpath("//input[@name='password']");
             By submitButtonLocator = By.xpath("//button[@type='submit']");
-            By errorMessageLocator = By.xpath("//*[contains(text(), 'invalid username')]");
+            By errorMessageLocator = By.id("error-message-id"); // replace with the actual id
 
-            // Wait for elements to appear and interact
             wait.until(ExpectedConditions.visibilityOfElementLocated(usernameLocator));
-            driver.findElement(usernameLocator).sendKeys("incorrectUser");
-            TimeUnit.SECONDS.sleep(3);
+            Thread.sleep(3000);
+            WebElement usernameField = driver.findElement(usernameLocator);
+            usernameField.sendKeys("incorrectUser");
 
             wait.until(ExpectedConditions.visibilityOfElementLocated(passwordLocator));
-            driver.findElement(passwordLocator).sendKeys("Password123");
-            TimeUnit.SECONDS.sleep(3);
+            Thread.sleep(3000);
+            WebElement passwordField = driver.findElement(passwordLocator);
+            passwordField.sendKeys("Password123");
 
-            wait.until(ExpectedConditions.elementToBeClickable(submitButtonLocator));
-            driver.findElement(submitButtonLocator).click();
-            TimeUnit.SECONDS.sleep(3);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(submitButtonLocator));
+            Thread.sleep(3000);
+            WebElement submitButton = driver.findElement(submitButtonLocator);
+            submitButton.click();
 
-            // Verify error message for invalid username
             wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageLocator));
+            Thread.sleep(3000);
             WebElement errorMessage = driver.findElement(errorMessageLocator);
-
             if (errorMessage.isDisplayed()) {
-                System.out.println("Test Passed: Error message is displayed.");
+                System.out.println("Test Passed");
                 System.exit(0);
             } else {
-                System.out.println("Test Failed: Error message is not displayed.");
+                System.out.println("Test Failed");
                 System.exit(1);
             }
+
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Test Failed due to an Exception.");
+            System.out.println("Test Failed: " + e.getMessage());
             System.exit(1);
         } finally {
             driver.quit();

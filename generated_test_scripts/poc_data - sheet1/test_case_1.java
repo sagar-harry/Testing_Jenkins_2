@@ -1,64 +1,67 @@
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.util.concurrent.TimeUnit;
 
 public class LoginTest {
 
     public static void main(String[] args) {
-        // Set up ChromeOptions for headless mode, incognito mode, and disabling notifications
+        // Set up Chrome options
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--incognito");
         options.addArguments("--disable-notifications");
-        
+        options.addArguments("--disable-popup-blocking");
+
         // Initialize WebDriver
         WebDriver driver = new ChromeDriver(options);
-        
-        try {
-            // Open the URL
-            driver.get("https://practicetestautomation.com/practice-test-login/");
-            // Wait for 5 seconds
-            Thread.sleep(5000);
 
-            // Maximize the page
+        try {
+            // Maximize
             driver.manage().window().maximize();
 
-            // Wait for elements to appear
-            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            // Open page
+            driver.get("https://practicetestautomation.com/practice-test-login/");
+            TimeUnit.SECONDS.sleep(5);
 
-            // Perform login actions
-            WebElement usernameField = driver.findElement(By.xpath("//input[@name='username']"));
-            Thread.sleep(3000); // wait for 3 secs before action
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+
+            // Username input
+            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name='username']")));
+            TimeUnit.SECONDS.sleep(3);
             usernameField.sendKeys("student");
 
-            WebElement passwordField = driver.findElement(By.xpath("//input[@name='password']"));
-            Thread.sleep(3000); // wait for 3 secs before action
+            // Password input
+            WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name='password']")));
+            TimeUnit.SECONDS.sleep(3);
             passwordField.sendKeys("Password123");
 
-            WebElement submitButton = driver.findElement(By.xpath("//button[@type='submit']"));
-            Thread.sleep(3000); // wait for 3 secs before action
+            // Submit button
+            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@type='submit']")));
+            TimeUnit.SECONDS.sleep(3);
             submitButton.click();
 
-            // Verify successful login
-            Thread.sleep(3000); // wait for 3 secs before action
-            WebElement logoutButton = driver.findElement(By.xpath("//a[text()='Log out']"));
+            // Verification of successful login
+            WebElement logoutButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("Log out")));
+            TimeUnit.SECONDS.sleep(3);
             if (logoutButton.isDisplayed()) {
-                System.out.println("Login test passed!");
+                System.out.println("Test Passed");
                 System.exit(0);
             } else {
-                System.out.println("Login test failed!");
+                System.out.println("Test Failed");
                 System.exit(1);
             }
-
         } catch (Exception e) {
-            System.out.println("An error occurred during the test execution.");
+            e.printStackTrace();
+            System.out.println("Test Failed");
             System.exit(1);
         } finally {
-            // Close the driver
             driver.quit();
         }
     }

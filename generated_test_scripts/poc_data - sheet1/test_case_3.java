@@ -1,57 +1,54 @@
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.WebElement;
 import java.util.concurrent.TimeUnit;
 
-public class InvalidPasswordTest {
+public class UITest {
     public static void main(String[] args) {
-        // Setting up Chrome Options
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--disable-notifications");
         options.addArguments("--incognito");
-        
-        // Initialize WebDriver
-        WebDriver driver = new ChromeDriver(options);
-        try {
-            // Open the page
-            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-            driver.get("http://yourwebsite.com/login");  // replace with the actual URL
-            driver.manage().window().maximize();
-            Thread.sleep(5000); // Wait for 5 seconds after opening the page
 
-            // Enter username
+        WebDriver driver = new ChromeDriver(options);
+
+        try {
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+            driver.get("http://example.com");
+            Thread.sleep(5000);
+
+            driver.manage().window().maximize();
+
+            Thread.sleep(3000);
             WebElement usernameField = driver.findElement(By.xpath("//input[@name='username']"));
             usernameField.sendKeys("student");
-            Thread.sleep(3000); // Wait for 3 seconds
 
-            // Enter invalid password
+            Thread.sleep(3000);
             WebElement passwordField = driver.findElement(By.xpath("//input[@name='password']"));
             passwordField.sendKeys("incorrectPassword");
-            Thread.sleep(3000); // Wait for 3 seconds
 
-            // Click submit
+            Thread.sleep(3000);
             WebElement submitButton = driver.findElement(By.xpath("//button[@type='submit']"));
             submitButton.click();
-            Thread.sleep(3000); // Wait for 3 seconds
 
-            // Verify error message for invalid password
-            WebElement errorMessage = driver.findElement(By.id("error")); // Replace with actual error message locator
+            Thread.sleep(5000);
+
+            WebElement errorMessage = driver.findElement(By.xpath("//*[contains(text(),'invalid password')]"));
             if (errorMessage.isDisplayed()) {
-                System.out.println("Test Case Passed");
                 System.exit(0);
             } else {
-                System.out.println("Test Case Failed");
                 System.exit(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         } finally {
-            // Close the browser
             driver.quit();
         }
     }
