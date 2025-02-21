@@ -6,82 +6,66 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
-public class UIInvoiceSearchTest {
-
+public class TestLoginInvoice {
     public static void main(String[] args) {
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        options.addArguments("--disable-notifications");
-        options.addArguments("--incognito");
+        options.addArguments("--headless", "--disable-notifications", "--incognito");
+        
         WebDriver driver = new ChromeDriver(options);
 
         try {
+            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
             driver.manage().window().maximize();
-            driver.get("https://your-cep-portal-url.com");
 
-            Thread.sleep(5000);  // Wait for 5 secs after opening the page
+            driver.get("https://your-cep-portal-url"); // Replace with actual URL
+            Thread.sleep(5000);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebDriverWait wait = new WebDriverWait(driver, 10);
 
-            // Wait and find username input
-            WebElement usernameField = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id='okta-signin-username']")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
-            usernameField.sendKeys("FRauto_beta1");
+            WebElement username = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id='okta-signin-username']")));
+            WebElement password = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id='okta-signin-password']")));
+            WebElement loginButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id='okta-signin-submit']")));
 
-            // Wait and find password input
-            WebElement passwordField = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id='okta-signin-password']")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
-            passwordField.sendKeys("1@Loveingram12");
+            username.sendKeys("FRauto_beta1");
+            Thread.sleep(3000);
 
-            // Wait and click login button
-            WebElement loginButton = wait
-                    .until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='okta-signin-submit']")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
+            password.sendKeys("1@Loveingram12");
+            Thread.sleep(3000);
+
             loginButton.click();
+            Thread.sleep(3000);
 
-            // Wait and navigate to My Business
-            WebElement businessIcon = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[2]/div[1]/svg[contains(@class, 'MuiSvgIcon-fontSizeMedium')]")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
+            WebElement businessIcon = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[2]/div[1]/svg[@class~='MuiSvgIcon-fontSizeMedium MuiSvgIcon-root']")));
             businessIcon.click();
+            Thread.sleep(3000);
 
-            // Wait and go to Invoices
-            WebElement invoiceLink = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//?/span[@innertext='Mes factures / Mes avoirs']")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
+            WebElement invoiceLink = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='Mes factures / Mes avoirs']")));
             invoiceLink.click();
+            Thread.sleep(3000);
 
-            // Wait and input invoice number
-            WebElement invoiceSearchField = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html//input[@id=':r4v:']")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
-            invoiceSearchField.sendKeys("217178006");
+            WebElement searchField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html//input[@id=':r4v:']")));
+            searchField.sendKeys("217178006");
+            Thread.sleep(3000);
 
-            // Wait and click search
-            WebElement searchButton = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@id='search-icon']")));
-            Thread.sleep(3000);  // Wait for 3 secs before every action
-            searchButton.click();
+            WebElement searchIcon = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@aria-label='Search']"))); // Adjust locator as needed
+            searchIcon.click();
+            Thread.sleep(3000);
 
-            // Verify result
-            boolean searchSuccess = wait.until(ExpectedConditions.textToBePresentInElementLocated(
-                    By.xpath("//div[contains(text(), 'Search Results')]"), "217178006"));
+            // Check for search result validity
+            boolean isResultValid = driver.findElements(By.xpath("//desired/locator/for/results")).size() > 0; // Adjust locator as needed
 
-            if (searchSuccess) {
-                System.exit(0); // Test passed
+            if (isResultValid) {
+                System.exit(0);
             } else {
-                System.exit(1); // Test failed
+                System.exit(1);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(1); // Test failed
+            System.exit(1);
         } finally {
             driver.quit();
         }
